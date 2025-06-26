@@ -6,6 +6,7 @@ REPO_MAIN="https://github.com/zeyu8023/ugreen-icon-replacer"
 REPO_MIRROR="https://download.fastgit.org/zeyu8023/ugreen-icon-replacer"
 ZIP_PATH="/archive/refs/heads/main.zip"
 ZIP_FILE="icons.zip"
+CONFIG_FILE="$HOME/.ugreen_icon_config"
 
 echo "请选择图标来源："
 echo "1) 使用 GitHub 项目中的图标（推荐）"
@@ -42,32 +43,39 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
 
   if [[ $? -ne 0 || ! -s "$ZIP_FILE" ]]; then
     echo "⚠️ 下载失败，可能网络受限或 GitHub 被阻断。"
+
+    [[ -f "$CONFIG_FILE" ]] && LAST_PROXY=$(grep "^proxy=" "$CONFIG_FILE" | cut -d '=' -f2)
+
     while true; do
-      read -p "🌐 请输入代理地址（如 http://127.0.0.1:7890，留空取消）: " PROXY
-
-      if [[ -z "$PROXY" ]]; then
-        echo "🚫 未设置代理，已退出。" | tee -a "$LOG_FILE"
-        exit 1
-      fi
-
-      if [[ "$PROXY" =~ ^(http|socks5h):// ]]; then
-        echo "🔁 正在使用代理 $PROXY 下载..."
-        curl -x "$PROXY" -sL --max-time 30 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
-        if [[ $? -eq 0 && -s "$ZIP_FILE" ]]; then
-          echo "✅ 代理下载成功！"
-          break
-        else
-          echo "❌ 下载失败，请确认代理是否可用。"
+      if [[ -n "$LAST_PROXY" ]]; then
+        echo "🧩 检测到上次使用的代理：$LAST_PROXY"
+        read -p "是否继续使用该代理？(y/n): " USE_LAST
+        if [[ "$USE_LAST" =~ ^[yY]$ ]]; then
+          PROXY="$LAST_PROXY"
         fi
-      else
-        echo "⚠️ 格式无效，请以 http:// 或 socks5h:// 开头输入。"
       fi
 
-      read -p "是否重新输入代理地址？(y/n): " RETRY
-      [[ "$RETRY" =~ ^[yY]$ ]] || exit 1
+      while [[ -z "$PROXY" ]]; do
+        read -p "🌐 请输入代理地址（如 http://127.0.0.1:7890，留空取消）: " PROXY
+        [[ -z "$PROXY" ]] && echo "🚫 未输入代理地址，已退出。" && exit 1
+        [[ "$PROXY" =~ ^(http|socks5h):// ]] || { echo "⚠️ 格式无效，请重新输入。"; PROXY=""; }
+      done
+
+      echo "🔁 使用代理 $PROXY 下载..."
+      curl -x "$PROXY" -sL --max-time 30 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
+      if [[ $? -eq 0 && -s "$ZIP_FILE" ]]; then
+        echo "✅ 下载成功，保存代理地址..."
+        echo "proxy=$PROXY" > "$CONFIG_FILE"
+        break
+      else
+        echo "❌ 下载失败，请确认代理是否可用。"
+        read -p "是否重新输入代理地址？(y/n): " RETRY
+        [[ "$RETRY" =~ ^[yY]$ ]] || exit 1
+        PROXY=""
+      fi
     done
   else
-    echo "✅ ZIP 下载成功。"
+    echo "✅ ZIP 包下载成功！"
   fi
 
   unzip -q "$ZIP_FILE"
