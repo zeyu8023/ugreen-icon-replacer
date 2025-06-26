@@ -15,7 +15,7 @@ read -p "请输入数字 [1/2]：" SOURCE_CHOICE
 
 if [[ "$SOURCE_CHOICE" == "1" ]]; then
   echo "🎨 请选择图标风格："
-  echo "1) iOS 26 液态玻璃（乐小宇）"
+  echo "1) iOS 26 液态玻璃（乐小宇制作）"
   echo "2) 锤子 OS（Sunny 整理）"
   echo "3) 拟物毛玻璃（Sunny 制作）"
   echo "4) 绿联毛玻璃（Sunny 制作）"
@@ -76,6 +76,27 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
     done
   else
     echo "✅ ZIP 包下载成功！"
+  fi
+
+  # 🔍 检查 unzip 是否存在
+  if ! command -v unzip &> /dev/null; then
+    echo "❗ 缺少 unzip 解压工具。"
+    read -p "是否尝试安装 unzip？(y/n): " INSTALL
+    if [[ "$INSTALL" =~ ^[yY]$ ]]; then
+      if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt install -y unzip
+      elif command -v dnf &> /dev/null; then
+        sudo dnf install -y unzip
+      elif command -v pacman &> /dev/null; then
+        sudo pacman -Sy unzip
+      else
+        echo "⚠️ 未识别的包管理器，请手动安装 unzip。" | tee -a "$LOG_FILE"
+        exit 1
+      fi
+    else
+      echo "🚫 未安装 unzip，脚本无法继续执行。" | tee -a "$LOG_FILE"
+      exit 1
+    fi
   fi
 
   unzip -q "$ZIP_FILE"
