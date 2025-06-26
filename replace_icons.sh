@@ -2,69 +2,83 @@
 
 LOG_FILE="/var/log/icon_replace_$(date +%Y%m%d_%H%M%S).log"
 TARGET_DIR="/ugreen/static/icons"
-DEBUG=0
+REPO_URL="https://github.com/zeyu8023/ugreen-icon-replacer"
+ZIP_URL="$REPO_URL/archive/refs/heads/main.zip"
 
-# 可选参数解析
-while [[ "$1" =~ ^- ]]; do
-  case "$1" in
-    --debug)
-      DEBUG=1
-      shift
-      ;;
-    *) break ;;
+# 🌐 选择图标来源
+echo "请选择图标来源："
+echo "1) 使用 GitHub 项目中的图标（推荐）"
+echo "2) 使用本地图标目录"
+read -p "请输入数字 [1/2]：" SOURCE_CHOICE
+
+if [[ "$SOURCE_CHOICE" == "1" ]]; then
+  echo "🎨 请选择图标风格："
+  echo "1) iOS 26 液态玻璃（乐小宇）"
+  echo "2) 锤子 OS（Sunny 整理）"
+  echo "3) 拟物毛玻璃（Sunny 制作）"
+  echo "4) 绿联毛玻璃（Sunny 制作）"
+  echo "5) 官方默认图标"
+  read -p "请输入数字 [1-5]：" STYLE_CHOICE
+
+  case "$STYLE_CHOICE" in
+    1) STYLE_FOLDER="IOS26" ;;
+    2) STYLE_FOLDER="SmartisanOS" ;;
+    3) STYLE_FOLDER="glass" ;;
+    4) STYLE_FOLDER="ugreenglass" ;;
+    5) STYLE_FOLDER="defaslt" ;;
+    *) echo "❌ 风格编号无效，已取消。"; exit 1 ;;
   esac
-done
 
-# 图标来源选择
-read -p "是否使用 GitHub 项目的默认图标？(y/n): " USE_GITHUB
+  echo "🌐 正在从 GitHub 下载图标资源..."
+  TEMP_DIR="/tmp/ugreen_icons_$(date +%s)"
+  mkdir -p "$TEMP_DIR"
+  cd "$TEMP_DIR" || exit 1
+  curl -sL "$ZIP_URL" -o icons.zip
+  unzip -q icons.zip
+  ICON_SOURCE_DIR=$(find . -type d -path "*/icons/$STYLE_FOLDER" | head -n1)
 
-if [[ "$USE_GITHUB" == "y" || "$USE_GITHUB" == "Y" ]]; then
-  echo "🌐 正在从 GitHub 下载默认图标..." | tee -a "$LOG_FILE"
-  TMP_DIR="/tmp/ugreen_icons_$(date +%s)"
-  mkdir -p "$TMP_DIR"
-  cd "$TMP_DIR" || exit 1
-  curl -sL https://github.com/zeyu8023/ugreen-icon-replacer/archive/refs/heads/main.zip -o repo.zip
-  unzip -q repo.zip
-  ICON_SOURCE_DIR=$(find . -type d -name "icons" | head -n1)
-  if [ -z "$ICON_SOURCE_DIR" ]; then
-    echo "❌ 未找到 icons 目录。" | tee -a "$LOG_FILE"
+  if [ ! -d "$ICON_SOURCE_DIR" ]; then
+    echo "❌ 未找到所选风格对应目录：$STYLE_FOLDER" | tee -a "$LOG_FILE"
+    exit 1
+  fi
+
+elif [[ "$SOURCE_CHOICE" == "2" ]]; then
+  read -p "请输入本地图标目录路径: " ICON_SOURCE_DIR
+  if [ ! -d "$ICON_SOURCE_DIR" ]; then
+    echo "❌ 路径不存在：$ICON_SOURCE_DIR" | tee -a "$LOG_FILE"
     exit 1
   fi
 else
-  read -p "请输入图标目录路径: " ICON_SOURCE_DIR
-  if [ ! -d "$ICON_SOURCE_DIR" ]; then
-    echo "❌ 找不到目录：$ICON_SOURCE_DIR" | tee -a "$LOG_FILE"
-    exit 1
-  fi
+  echo "❌ 输入无效，已取消。"
+  exit 1
 fi
 
-# 替换确认
-read -p "是否继续替换系统图标？(y/n): " CONFIRM
-[[ "$CONFIRM" =~ ^[yY]$ ]] || { echo "🚫 已取消。"; exit 0; }
+# ⚠️ 替换确认
+read -p "是否继续替换图标？此操作不可撤销 (y/n): " CONFIRM
+if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+  echo "🚫 已取消操作。" | tee -a "$LOG_FILE"
+  exit 0
+fi
 
-# 替换逻辑 + debug 输出
+# 🔁 执行替换逻辑
 {
-echo "🕒 开始替换：$(date)"
-echo "📁 来源：$ICON_SOURCE_DIR"
-echo "🎯 目标：$TARGET_DIR"
+echo "🕒 替换开始：$(date)"
+echo "📁 来源目录：$ICON_SOURCE_DIR"
+echo "🎯 替换目标：$TARGET_DIR"
 
 find "$ICON_SOURCE_DIR" -type f \( -iname "*.png" -o -iname "*.svg" -o -iname "*.jpg" \) | while read -r file; do
   filename=$(basename "$file")
   target="$TARGET_DIR/$filename"
-
   if [ -f "$target" ]; then
     cp "$file" "$target"
-    echo "✅ 替换成功：$filename"
-    if [ "$DEBUG" -eq 1 ]; then
-      echo "  ➤ 源文件：$file"
-      echo "  ➤ 目标文件：$target"
-      echo "  ➤ 源大小：$(stat -c%s "$file") 字节"
-      echo "  ➤ 新哈希：$(md5sum "$target" | cut -d ' ' -f1)"
-    fi
+    echo "✅ 替换：$filename"
   else
-    echo "⚠️ 未匹配图标：$filename"
+    echo "⚠️ 未匹配系统图标，跳过：$filename"
   fi
 done
 
-echo "✅ 替换完成：$(date)"
+echo "✅ 图标替换完成：$(date)"
 } | tee -a "$LOG_FILE"
+
+# 清理临时目录
+[[ "$SOURCE_CHOICE" == "1" ]] && rm -rf "$TEMP_DIR"
