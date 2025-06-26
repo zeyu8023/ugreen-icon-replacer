@@ -35,7 +35,7 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
   cd "$TMP_DIR" || exit 1
 
   echo "🌐 正在尝试从主站下载 ZIP 包..."
-  curl -sL --max-time 20 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
+  curl -sL --max-time 10 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
   if [[ $? -ne 0 || ! -s "$ZIP_FILE" ]]; then
     echo "⚠️ 主站失败，尝试镜像源..."
     curl -sL --max-time 20 "$REPO_MIRROR$ZIP_PATH" -o "$ZIP_FILE"
