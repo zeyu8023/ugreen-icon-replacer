@@ -27,7 +27,7 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
     2) STYLE_FOLDER="SmartisanOS" ;;
     3) STYLE_FOLDER="glass" ;;
     4) STYLE_FOLDER="ugreenglass" ;;
-    5) STYLE_FOLDER="defaslt" ;;
+    5) STYLE_FOLDER="default" ;;
     *) echo "❌ 风格编号无效，已退出。"; exit 1 ;;
   esac
 
