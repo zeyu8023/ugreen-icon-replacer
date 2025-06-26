@@ -115,6 +115,15 @@ ugreen-icon-replacer/
 
 ---
 
+## 🙌 致谢与贡献
+
+图标资源由社区成员贡献整理：
+
+- 🎨 乐小宇（@zeyu8023）：iOS 26 玻璃风格
+- 🧊 Sunny：SmartisanOS（整理）、玻璃拟物、绿联毛玻璃系列
+
+欢迎提 issue 和 PR，持续完善脚本、扩展风格或优化执行体验！
+
 ## 📄 License
 
 MIT License © 2025 zeyu8023
