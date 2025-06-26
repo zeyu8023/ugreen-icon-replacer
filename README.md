@@ -2,7 +2,7 @@
 
 ![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/879fe65d50d90eb1333f8286a299d9596f14287c/icons/feiniu2.png)
 
-本项目是一个用于快速替换绿联NAS UGPSPRO系统图标的终端脚本工具，支持多套图标风格、联网自动下载、代理加速、自动解压和覆盖替换。适用于绿联NAS（UGOSPRO） 图标目录管理或定制替换。
+本项目是一个用于快速替换UGOSPRO系统图标的终端脚本工具，支持多套图标风格、联网自动下载、代理加速、自动解压和覆盖替换。适用于绿联NAS（UGOSPRO） 图标目录管理或定制替换。
 
 ## 开始执行脚本前，请一定sudo -i 获取root权限！！！否则会替换失败！
 
