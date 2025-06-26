@@ -1,5 +1,7 @@
 # 🧊 ugreen-icon-replacer
 
+![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/879fe65d50d90eb1333f8286a299d9596f14287c/icons/feiniu2.png)
+
 一键自动替换 `/ugreen/static/icons` 系统图标的脚本，支持默认图标文件夹、自定义路径、日志记录与安全确认。专为 UGOSPRO 系统设计，让图标更新更简单、更可控！
 
 ## 开始执行脚本前，请一定sudo -i 获取root权限！！！否则会替换失败！
