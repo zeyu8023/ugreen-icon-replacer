@@ -8,6 +8,28 @@
 
 ---
 
+## 🚀 快速使用
+![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/wechat_2025-06-26_212946_207.png)
+
+### 方法一：一键运行（推荐）
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/zeyu8023/ugreen-icon-replacer/main/replace_icons.sh)
+
+```
+
+
+
+### 方法二：手动下载运行
+
+```bash
+git clone https://github.com/zeyu8023/ugreen-icon-replacer.git
+cd ugreen-icon-replacer
+chmod +x replace_icons.sh
+sudo ./replace_icons.sh
+
+```
+
 ## ✨ 功能特色
 
 - ✅ 图标风格选择：5 套风格任意切换
@@ -62,28 +84,6 @@ Fedora/CentOS  dnf
 Arch/Manjaro  pacman
 
 ---
-
-## 🚀 快速使用
-![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/wechat_2025-06-26_212946_207.png)
-
-### 方法一：一键运行（推荐）
-
-```bash
-bash <(curl -s https://raw.githubusercontent.com/zeyu8023/ugreen-icon-replacer/main/replace_icons.sh)
-
-```
-
-
-
-### 方法二：手动下载运行
-
-```bash
-git clone https://github.com/zeyu8023/ugreen-icon-replacer.git
-cd ugreen-icon-replacer
-chmod +x replace_icons.sh
-sudo ./replace_icons.sh
-
-```
 
 ## 🛠️ 使用说明
 
