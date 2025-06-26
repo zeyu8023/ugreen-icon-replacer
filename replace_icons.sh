@@ -40,25 +40,31 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
     curl -sL --max-time 20 "$REPO_MIRROR$ZIP_PATH" -o "$ZIP_FILE"
   fi
 
-  # 如果仍失败，提示代理输入并支持重试
   if [[ $? -ne 0 || ! -s "$ZIP_FILE" ]]; then
-    echo "⚠️ 下载失败，可能网络受限或 GitHub 不可达。"
+    echo "⚠️ 下载失败，可能网络受限或 GitHub 被阻断。"
     while true; do
       read -p "🌐 请输入代理地址（如 http://127.0.0.1:7890，留空取消）: " PROXY
-      if [ -z "$PROXY" ]; then
+
+      if [[ -z "$PROXY" ]]; then
         echo "🚫 未设置代理，已退出。" | tee -a "$LOG_FILE"
         exit 1
       fi
-      echo "🔁 使用代理 $PROXY 下载中..."
-      curl -x "$PROXY" -sL --max-time 30 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
-      if [[ $? -eq 0 && -s "$ZIP_FILE" ]]; then
-        echo "✅ 代理下载成功！"
-        break
+
+      if [[ "$PROXY" =~ ^(http|socks5h):// ]]; then
+        echo "🔁 正在使用代理 $PROXY 下载..."
+        curl -x "$PROXY" -sL --max-time 30 "$REPO_MAIN$ZIP_PATH" -o "$ZIP_FILE"
+        if [[ $? -eq 0 && -s "$ZIP_FILE" ]]; then
+          echo "✅ 代理下载成功！"
+          break
+        else
+          echo "❌ 下载失败，请确认代理是否可用。"
+        fi
       else
-        echo "❌ 下载失败，请确认代理地址正确。"
-        read -p "是否重新输入代理？(y/n): " RETRY
-        [[ "$RETRY" =~ ^[yY]$ ]] || exit 1
+        echo "⚠️ 格式无效，请以 http:// 或 socks5h:// 开头输入。"
       fi
+
+      read -p "是否重新输入代理地址？(y/n): " RETRY
+      [[ "$RETRY" =~ ^[yY]$ ]] || exit 1
     done
   else
     echo "✅ ZIP 下载成功。"
