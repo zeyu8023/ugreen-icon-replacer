@@ -22,9 +22,10 @@
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/zeyu8023/ugreen-icon-replacer/main/replace_icons.sh)
+
 ---
 
-2. 自行下载使用
+###2. 自行下载使用
 
 `bash
 git clone https://github.com/zeyu8023/ugreen-icon-replacer.git
