@@ -56,10 +56,10 @@ done
 # === 获取图标目录 ===
 if [[ "$SOURCE_CHOICE" == "1" ]]; then
   echo -e "\n🎨 请选择图标风格："
-  echo "1) iOS 26 液态玻璃"
-  echo "2) 锤子 OS"
-  echo "3) 拟物毛玻璃"
-  echo "4) 绿联毛玻璃"
+  echo "1) iOS26 液态玻璃（乐小宇制作）"
+  echo "2) 锤子OS（Sunny整理）"
+  echo "3) 拟物毛玻璃（Sunny制作）"
+  echo "4) 绿联毛玻璃（Sunny制作）"
   echo "5) 官方默认图标"
   read -p "请输入数字 [1-5]：" STYLE_CHOICE
   case "$STYLE_CHOICE" in
