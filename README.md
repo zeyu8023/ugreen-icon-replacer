@@ -13,9 +13,17 @@
 
 ### 方法一：一键运行（推荐）
 
+#### Github地址：
+
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/zeyu8023/ugreen-icon-replacer/main/replace_icons.sh)
 
+```
+
+#### Gitee地址：（由Dear-Chen制作及维护）
+
+```
+bash <(curl -s https://gitee.com/Dear-Chen/ugreen-icon-replacer/raw/main/replace_icons.sh)
 ```
 
 ### 方法二：手动下载运行
