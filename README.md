@@ -9,7 +9,7 @@
 ---
 
 ## 🚀 快速使用
-![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/yanshi.png)
+![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/yanshi2.png)
 
 ### 方法一：一键运行（推荐）
 
