@@ -147,11 +147,7 @@ read -p "是否继续替换系统图标？(y/n): " CONFIRM
 # === 权限检查 ===
 if [[ ! -w "$TARGET_DIR" ]]; then
   echo "🚫 当前用户无权限写入目标目录：$TARGET_DIR"
-  echo "💡 请使用 sudo 运行，或赋予权限，例如："
-  echo "   sudo chown$(whoami):$(whoami) $TARGET_DIR"
-  echo ""
-  echo "🚨 请重新赋权后再运行本脚本，或使用 sudo："
-  echo "   sudo bash $0"
+  echo "💡 请输入 sudo -i后验证密码后重新运行该脚本。
   exit 1
 fi
 
