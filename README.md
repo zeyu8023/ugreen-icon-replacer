@@ -9,7 +9,7 @@
 ---
 
 ## 🚀 快速使用
-![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/wechat_2025-06-26_212946_207.png)
+![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/yanshi.png)
 
 ### 方法一：一键运行（推荐）
 
