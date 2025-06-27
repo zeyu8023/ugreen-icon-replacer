@@ -146,8 +146,13 @@ read -p "是否继续替换系统图标？(y/n): " CONFIRM
 
 # === 权限检查 ===
 if [[ ! -w "$TARGET_DIR" ]]; then
-  echo "🚫 当前用户无权限写入目标目录：$TARGET_DIR"
-  echo "💡 请输入 sudo -i后验证密码后重新运行该脚本。
+  echo "🚫 当前用户无权限写入目录：$TARGET_DIR"
+  echo "🧰 请执行以下命令切换为 root 并重新运行脚本："
+  echo ""
+  echo "   sudo -i"
+  echo "   bash $0"
+  echo ""
+  echo "🛡️ 该目录通常需要 root 权限，请确认您具备管理员权限。"
   exit 1
 fi
 
