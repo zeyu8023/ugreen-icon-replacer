@@ -1,22 +1,23 @@
 #!/bin/bash
 
 # === 基本配置 ===
-LOG_FILE="/var/log/icon_replace_$(date +%Y%m%d_%H%M%S).log"
 TARGET_DIR="/ugreen/static/icons"
+CACHE_DIR="$HOME/.ugreen_icon_cache"
+CONFIG_FILE="$HOME/.ugreen_icon_config"
 REPO_MAIN="https://github.com/zeyu8023/ugreen-icon-replacer"
 REPO_MIRROR="https://download.fastgit.org/zeyu8023/ugreen-icon-replacer"
 ZIP_PATH="/archive/refs/heads/main.zip"
 ZIP_FILE="icons.zip"
-CONFIG_FILE="$HOME/.ugreen_icon_config"
+LOG_FILE="/var/log/icon_replace_$(date +%Y%m%d_%H%M%S).log"
 
-# === 读取配置文件 ===
-# 默认为 ~/.ugreen_icon_cache
+# === 加载缓存配置 ===
 if [[ -f "$CONFIG_FILE" ]]; then
-  CACHE_DIR=$(grep "^cache_dir=" "$CONFIG_FILE" | cut -d '=' -f2)
+  CACHE_TMP=$(grep "^cache_dir=" "$CONFIG_FILE" | cut -d '=' -f2)
   PROXY_ADDR=$(grep "^proxy=" "$CONFIG_FILE" | cut -d '=' -f2)
+  [[ -n "$CACHE_TMP" ]] && CACHE_DIR="$CACHE_TMP"
 fi
 [[ -z "$CACHE_DIR" ]] && CACHE_DIR="$HOME/.ugreen_icon_cache"
-mkdir -p "$CACHE_DIR"
+mkdir -p "$CACHE_DIR" "$TARGET_DIR"
 CACHE_ZIP="$CACHE_DIR/main.zip"
 CACHE_TIMESTAMP="$CACHE_DIR/main.zip.timestamp"
 
@@ -33,32 +34,28 @@ while true; do
   case "$MENU_CHOICE" in
     1|2) SOURCE_CHOICE="$MENU_CHOICE"; break ;;
     3)
-      if [[ -d "$CACHE_DIR" ]]; then
-        read -p "是否确认清空缓存目录？(y/n): " CONFIRM
-        [[ "$CONFIRM" =~ ^[yY]$ ]] && rm -rf "$CACHE_DIR" && echo "✅ 缓存已清空。" || echo "🚫 取消。"
-      else
-        echo "📁 无缓存可清理。"
-      fi
+      rm -rf "$CACHE_DIR"
+      mkdir -p "$CACHE_DIR"
+      echo "✅ 缓存已清空。"
       ;;
     4)
-      read -p "请输入新的缓存目录路径: " NEW_PATH
+      read -p "📁 输入新的缓存目录路径: " NEW_PATH
       [[ -z "$NEW_PATH" ]] && echo "⚠️ 目录为空，未修改。" && continue
       CACHE_DIR="$NEW_PATH"
       CACHE_ZIP="$CACHE_DIR/main.zip"
       CACHE_TIMESTAMP="$CACHE_DIR/main.zip.timestamp"
       mkdir -p "$CACHE_DIR"
-      echo "✅ 已设置缓存目录为：$CACHE_DIR"
-      # 更新配置文件
       { [[ -n "$PROXY_ADDR" ]] && echo "proxy=$PROXY_ADDR"; echo "cache_dir=$CACHE_DIR"; } > "$CONFIG_FILE"
+      echo "✅ 已设置缓存目录为：$CACHE_DIR"
       ;;
     5) echo "👋 程序已退出。"; exit 0 ;;
     *) echo "❌ 输入无效，请重新选择。" ;;
   esac
 done
 
-# === 选择图标来源 ===
+# === 获取图标目录 ===
 if [[ "$SOURCE_CHOICE" == "1" ]]; then
-  echo "🎨 请选择图标风格："
+  echo -e "\n🎨 请选择图标风格："
   echo "1) iOS 26 液态玻璃"
   echo "2) 锤子 OS"
   echo "3) 拟物毛玻璃"
@@ -93,13 +90,11 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
     if [[ $? -ne 0 || ! -s "$CACHE_ZIP" ]]; then
       while true; do
         [[ -n "$PROXY_ADDR" ]] && echo "🧩 检测到上次代理：$PROXY_ADDR" && read -p "是否继续使用该代理？(y/n): " USE_LAST && [[ "$USE_LAST" =~ ^[yY]$ ]] && PROXY="$PROXY_ADDR"
-
         while [[ -z "$PROXY" ]]; do
           read -p "🌐 请输入代理地址（http://... 或 socks5h://...）: " PROXY
           [[ -z "$PROXY" ]] && echo "🚫 未输入代理。" && exit 1
           [[ "$PROXY" =~ ^(http|socks5h):// ]] || { echo "⚠️ 格式无效，请重新输入。"; PROXY=""; }
         done
-
         curl -x "$PROXY" -sL --max-time 30 "$REPO_MAIN$ZIP_PATH" -o "$CACHE_ZIP"
         if [[ $? -eq 0 && -s "$CACHE_ZIP" ]]; then
           echo "✅ 下载成功，保存代理配置。"
@@ -114,12 +109,10 @@ if [[ "$SOURCE_CHOICE" == "1" ]]; then
         fi
       done
     fi
-
     cp "$CACHE_ZIP" "$ZIP_FILE"
     date +%s > "$CACHE_TIMESTAMP"
   fi
 
-  # === 解压并提取目标图标路径 ===
   if ! command -v unzip &>/dev/null; then
     echo "❗ 检测到 unzip 未安装。"
     read -p "是否尝试安装 unzip？(y/n): " INSTALL
@@ -151,27 +144,42 @@ fi
 read -p "是否继续替换系统图标？(y/n): " CONFIRM
 [[ "$CONFIRM" =~ ^[yY]$ ]] || { echo "🚫 操作取消。"; [[ "$SOURCE_CHOICE" == "1" ]] && rm -rf "$TMP_DIR"; exit 0; }
 
+# === 权限检查 ===
+if [[ ! -w "$TARGET_DIR" ]]; then
+  echo "🚫 当前用户无权限写入目标目录：$TARGET_DIR"
+  echo "💡 请使用 sudo 运行，或赋予权限，例如："
+  echo "   sudo chown$(whoami):$(whoami) $TARGET_DIR"
+  echo ""
+  echo "🚨 请重新赋权后再运行本脚本，或使用 sudo："
+  echo "   sudo bash $0"
+  exit 1
+fi
+
+# === 执行替换 ===
 {
 echo "🕒 开始替换：$(date)"
 echo "📁 图标源目录：$ICON_SOURCE_DIR"
 echo "🎯 目标图标目录：$TARGET_DIR"
 
+COUNT=0; SKIP=0
 find "$ICON_SOURCE_DIR" -type f \( -iname "*.png" -o -iname "*.svg" -o -iname "*.jpg" \) | while read -r file; do
-  filename=$(basename "$file")
-  target="$TARGET_DIR/$filename"
-  if [ -f "$target" ]; then
-    cp "$file" "$target"
-    echo "✅ 替换：$filename"
+  fname=$(basename "$file")
+  tpath="$TARGET_DIR/$fname"
+  if [[ -f "$tpath" ]]; then
+    cp "$file" "$tpath"
+    echo "✅ 替换：$fname"
+    ((COUNT++))
   else
-    echo "⚠️ 跳过未匹配图标：$filename"
+    echo "⏭ 跳过（目标不存在）：$fname"
+    ((SKIP++))
   fi
 done
 
-echo "✅ 图标替换完成：$(date)"
+echo "✅ 图标替换完成，共 $COUNT 个替换，$SKIP 个跳过"
 } | tee -a "$LOG_FILE"
 
-# 🧼 清理临时目录
+# === 清理临时目录 ===
 [[ "$SOURCE_CHOICE" == "1" ]] && rm -rf "$TMP_DIR"
 
 echo ""
-echo "🎉 图标替换已完成！快刷新界面看看新风格吧～"
+echo "🎉 图标替换已完成！如未生效，请尝试重启应用或刷新界面。"
