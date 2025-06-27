@@ -1,6 +1,6 @@
 # 🧊绿联NAS（UGOS PRO）图标一键更换脚本
 
-![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/879fe65d50d90eb1333f8286a299d9596f14287c/icons/feiniu2.png)
+![image](https://github.com/zeyu8023/ugreen-icon-replacer/blob/main/icons/bana.jpg)
 
 本项目是一个用于快速替换UGOS PRO系统图标的终端脚本工具，支持多套图标风格、联网自动下载、代理加速、自动解压和覆盖替换。适用于绿联NAS（UGOS PRO） 图标目录管理或定制替换。
 
