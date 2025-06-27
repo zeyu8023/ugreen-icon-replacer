@@ -20,7 +20,7 @@ bash <(curl -s https://raw.githubusercontent.com/zeyu8023/ugreen-icon-replacer/m
 
 ```
 
-#### Gitee地址：（由[@Dear-Chen]([https://www.google.com](https://github.com/Dear-Chen))制作及维护）
+#### Gitee地址：（由[@Dear-Chen]([https://github.com/Dear-Chen])制作及维护）
 
 ```
 bash <(curl -s https://gitee.com/Dear-Chen/ugreen-icon-replacer/raw/main/replace_icons.sh)
